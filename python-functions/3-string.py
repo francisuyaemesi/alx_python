@@ -1,3 +1,3 @@
 def reverse_string(string):
-    out = string.reverse
+    out = string[::-1]
     return out
