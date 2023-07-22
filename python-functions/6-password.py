@@ -3,7 +3,6 @@ def validate_password(password):
         return False
     else:
         for i in password:
-            print(i)
             if i.isupper():
                 continue
             elif i.islower():
