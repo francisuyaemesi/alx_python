@@ -22,5 +22,3 @@ def validate_password(password):
     else:
         return False
     
-hi = validate_password("Password 123")
-print(hi)
