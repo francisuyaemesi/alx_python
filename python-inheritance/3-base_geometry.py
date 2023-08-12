@@ -1,38 +1,31 @@
 #!/usr/bin/python3
 """
-3-base_geometry module
-
-Define an empty class BaseGeometry.
+    This is a base class
 """
 
 
-class BaseGeometry:
+class TypeMetaClass(type):
     """
-    An empty class representing BaseGeometry.
+    This is a metaclass used to represent the class type inorder to eliminate
+    the inherited method init subclass
     """
-
-    def __dir__(self):
+    def __dir__(cls) -> None:
         """
-        Override the dir() method to exclude __init_subclass__ from the list of attributes for the instance.
+        Exclude attribute init subclass in dir()
         """
         attributes = super().__dir__()
-        # Exclude __init_subclass__ from the list of attributes for the instance
-        attributes = [attr for attr in attributes if attr != "__init_subclass__"]
-        return attributes
 
-
-def class_dir(cls):
+        return [attribute for attribute in attributes if attribute != '__init_subclass__']
+class BaseGeometry(metaclass=TypeMetaClass):
     """
-    Override the dir() method to exclude __init_subclass__ from the list of attributes for the class.
+    This is a base class
     """
-    attributes = super(cls).__dir__()
-    # Exclude __init_subclass__ from the list of attributes for the class
-    attributes = [attr for attr in attributes if attr != "__init_subclass__"]
-    return attributes
+    pass
 
+    def __dir__(cls) -> None:
+        """
+        Exclude attribute init subclass in dir()
+        """
+        attributes = super().__dir__()
 
-if __name__ == "__main__":
-    bg = BaseGeometry()
-    print(bg)
-    print(dir(bg))
-    print(class_dir(BaseGeometry()))
+        return [attribute for attribute in attributes if attribute != '__init_subclass__']

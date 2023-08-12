@@ -1,11 +1,18 @@
-#!/usr/bin/python3
-"""Checks object class"""
-
-
+"""
+This module checks if an object is instance of a class or a subclass
+"""
 def is_kind_of_class(obj, a_class):
-    """Checks object class
+    """AI is creating summary for is_kind_of_class
+
     Args:
-        - obj: object to class
-        - a_class: class to check
+        obj: the instance/object
+        a_class: a class
+
+    Returns:
+        True: if bj is instance of the class
+        False: if obj not object of the class 
     """
-    return isinstance(obj, a_class)
+    if isinstance(obj, a_class):
+        return True
+    else:
+        return False
