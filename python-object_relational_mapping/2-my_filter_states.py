@@ -1,17 +1,28 @@
-import sys
-import MySQLdb
-
+'''
+Write a script that takes in an argument and displays all
+values in the states table of hbtn_0e_0_usa
+where name matches the argument.
+'''
 if __name__ == "__main__":
+    import MySQLdb
+    import sys
 
-    # Get MySQL credentials and search name from command-line arguments
-    # and # Connect to MySQL server
-    db = MySQLdb.connect(user=sys.argv[1], passwd=sys.argv[2], db=sys.argv[3])
-    c = db.cursor()
+    user = sys.argv[1]
+    password = sys.argv[2]
+    database = sys.argv[3]
 
-    # Execute the SQL query to retrieve states with the specified name
-    c.execute("SELECT * \
-                 FROM `states` \
-                WHERE BINARY `name` = '{}'".format(sys.argv[4]))
+    # Connect to the database
+    connector = MySQLdb.connect(user=user, passwd=password, db=database)
 
-    # Fetch all rows and print the states
-    [print(state) for state in c.fetchall()]
+    # a cursor to manipulate the database
+    db_cur = connector.cursor()
+
+    db_cur.execute("USE test_2")
+    state_search = sys.argv[4]
+    query = "SELECT * FROM states \
+            WHERE name COLLATE utf8mb4_bin LIKE '{}%'".format(state_search)
+    db_cur.execute(query)
+    states_data = db_cur.fetchall()
+
+    for data in states_data:
+        print(data)

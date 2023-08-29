@@ -1,41 +1,26 @@
-import sys
-import MySQLdb
-
+'''
+Write a script that takes in an argument and displays all
+values in the states table of hbtn_0e_0_usa
+where name matches the argument.
+'''
 if __name__ == "__main__":
     import MySQLdb
     import sys
 
-    # Get the command-line arguments
-    mysql_username = sys.argv[1]
-    mysql_password = sys.argv[2]
-    database_name = sys.argv[3]
-    state_name = sys.argv[4]
+    user = sys.argv[1]
+    password = sys.argv[2]
+    database = sys.argv[3]
 
-    # Connect to the MySQL server
-    db = MySQLdb.connect(
-        host='localhost',
-        port=3306,
-        user=mysql_username,
-        passwd=mysql_password,
-        db=database_name
-    )
+    # Connect to the database
+    connector = MySQLdb.connect(user=user, passwd=password, db=database)
+    # a cursor to manipulate the database
+    db_cur = connector.cursor()
 
-    # Create a cursor object to execute queries
-    cursor = db.cursor()
+    state_search = sys.argv[4]
+    query = "SELECT * FROM states \
+            WHERE name = %(state_key)s"
+    db_cur.execute(query, {'state_key': state_search})
+    states_data = db_cur.fetchall()
 
-    # Prepare the SQL query with placeholders
-    sql_query = "SELECT * FROM states WHERE name = %s ORDER BY id ASC"
-
-    # Execute the query with the state name as a parameter
-    cursor.execute(sql_query, (state_name,))
-
-    # Fetch all the rows returned by the query
-    rows = cursor.fetchall()
-
-    # Display the results
-    for row in rows:
-        print(row)
-
-    # Close the cursor and database connection
-    cursor.close()
-    db.close()
+    for data in states_data:
+        print(data)

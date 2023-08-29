@@ -1,19 +1,29 @@
-import sys
-import MySQLdb
-
+'''
+a script that takes in the name of a state as an
+argument and lists all cities of that state,
+using the database hbtn_0e_4_usa
+'''
 if __name__ == "__main__":
-    # Get MySQL credentials and state name from command-line arguments
-    # and Connect to MySQL server
-    db = MySQLdb.connect(user=sys.argv[1], passwd=sys.argv[2], db=sys.argv[3])
-    c = db.cursor()
+    import MySQLdb
+    import sys
 
-    # Execute the SQL query to retrieve cities in the specified state
-    query = ("SELECT * FROM `cities` as `c` \
-                INNER JOIN `states` as `s` \
-                   ON `c`.`state_id` = `s`.`id` \
-                ORDER BY `c`.`id`")
-    c.execute(query)
+    user = sys.argv[1]
+    password = sys.argv[2]
+    database = sys.argv[3]
+    state_searched = sys.argv[4]
 
-    # Fetch all rows and filter cities by the specified state
-    # and Print the cities separated by commas
-    print(", ".join([ct[2] for ct in c.fetchall() if ct[4] == sys.argv[4]]))
+    # Connect to the database
+    connector = MySQLdb.connect(user=user, passwd=password, db=database)
+
+    # a cursor to manipulate the database
+    db_cur = connector.cursor()
+    db_cur.execute("""SELECT name
+                   FROM cities
+                   WHERE state_id =
+                    (SELECT id FROM states
+                    WHERE name COLLATE utf8mb4_bin LIKE '{}%')
+                   ORDER BY id ASC""".format(state_searched))
+    states_data = db_cur.fetchall()
+
+    cities = ', '.join(data[0] for data in states_data)
+    print(cities)

@@ -1,19 +1,23 @@
-import sys
-import MySQLdb
-
+'''
+Write a script that lists all cities from the database hbtn_0e_4_usa
+'''
 if __name__ == "__main__":
-    # Get MySQL credentials and search name from command-line arguments
-    db = MySQLdb.connect(user=sys.argv[1], passwd=sys.argv[2], db=sys.argv[3])
+    import MySQLdb
+    import sys
 
-    # Connect to MySQL server
-    c = db.cursor()
+    user = sys.argv[1]
+    password = sys.argv[2]
+    database = sys.argv[3]
 
-    # Execute the SQL query to retrieve all states
-    c.execute("SELECT `c`.`id`, `c`.`name`, `s`.`name` \
-                 FROM `cities` as `c` \
-                INNER JOIN `states` as `s` \
-                   ON `c`.`state_id` = `s`.`id` \
-                ORDER BY `c`.`id`")
+    # Connect to the database
+    connector = MySQLdb.connect(user=user, passwd=password, db=database)
 
-    # Fetch all rows and print the states
-    [print(city) for city in c.fetchall()]
+    # a cursor to manipulate the database
+    db_cur = connector.cursor()
+    db_cur.execute("SELECT cities.id, cities.name, states.name \
+                   FROM cities, states \
+                   WHERE states.id = state_id ORDER BY cities.id")
+    states_data = db_cur.fetchall()
+
+    for data in states_data:
+        print(data)
