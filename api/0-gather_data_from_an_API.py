@@ -1,83 +1,27 @@
-"""
-This script uses an API to retrieve employee task information
-and display in a special format.
-
-It retrieves employees name, task completed with their titles.
-
-"""
-
-"""
-Employee Task Information Retrieval and CSV Export Script
-
-This script retrieves task information for a specified employee using an API
-and exports the data in CSV format.
-
-Usage:
-    python script_name.py employee_id
-
-APIs:
-    - User Todo URL: https://jsonplaceholder.typicode.com/users/{employee_id}/todos
-    - User Profile URL: https://jsonplaceholder.typicode.com/users/{employee_id}
-
-Dependencies:
-    - requests
-    - csv
-
-Script Execution:
-    - The script should be executed from the command line with the employee_id as an argument.
-
-Output:
-    - Prints the employee's task completion status and titles.
-    - Exports data to a CSV file named USER_ID.csv.
-
-CSV Format:
-    "USER_ID","USERNAME","TASK_COMPLETED_STATUS","TASK_TITLE"
-
-Example:
-    python script_name.py 1
-
-"""
-
 import requests
 import sys
 
-# No execution of this file when imported
-if __name__ == "__main__":
-    
-# Pass employee id on command line
-    id = sys.argv[1]
+def get_employee_todo_progress(employee_id):
+    url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    response = requests.get(url)
+    employee = response.json()
 
-# APIs 
-    userTodoURL = "https://jsonplaceholder.typicode.com/users/{}/todos".format(id)
-    userProfile = "https://jsonplaceholder.typicode.com/users/{}".format(id)
+    url = f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos"
+    response = requests.get(url)
+    todos = response.json()
 
-# Make requests on APIs
-    todoResponse = requests.get(userTodoURL)
-    profileResponse = requests.get(userProfile)
+    total_tasks = len(todos)
+    done_tasks = sum(1 for todo in todos if todo['completed'])
 
-# Parse responses and store in variables
-    todoJson_Data = todoResponse.json()
-    profileJson_Data = profileResponse.json()
+    print(f"Employee {employee['name']} is done with tasks({done_tasks}/{total_tasks}):")
+    for todo in todos:
+        if todo['completed']:
+            print(f"\t {todo['title']}")
 
-#Get employee information
-    employeeName = profileJson_Data['name']
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} EMPLOYEE_ID")
+        sys.exit(1)
 
-# Count total and completed tasks
-    totalTasks = 0
-    completedTasks = 0
-
-    for data in todoJson_Data: # Each dict in variable data
-        for key, value in data.items():
-            if key == 'completed':
-                totalTasks += 1
-                if value == True:
-                    completedTasks += 1
-
-    print("Employee {} is done with "
-    "tasks({}/{}):".format(employeeName, completedTasks, totalTasks))
-
-# Retrieve title of completed tasks
-    for data in todoJson_Data: # Each dict in variable data
-        for key, value in data.items():
-            if key == 'completed' and value == True:
-                print("\t {}".format (data['title']))
+    employee_id = sys.argv[1]
+    get_employee_todo_progress(employee_id)

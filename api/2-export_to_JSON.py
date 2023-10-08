@@ -1,24 +1,36 @@
-import requests
+"""fetching employee,TODO lists and counting completed tasks
+"""
+
 import json
-import sys
+import requests
 
-def export_employee_todo_list_to_json(employee_id):
-    """Exports the employee's TODO list to a JSON file."""
-    try:
-        # Get the employee's TODO list items.
-        todo_list_items_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos"
-        todo_list_items_response = requests.get(todo_list_items_url)
-        todo_list_items_response.raise_for_status()  # Raise an exception for bad responses.
-        todo_list_items = todo_list_items_response.json()
+def get_employee_todo_list_progress(employee_id):
+    # Get employee details
+    response = requests.get(f'https://jsonplaceholder.typicode.com/users/{employee_id}')
+    employee_name = response.json()['name']
 
-        # Create a dictionary to store JSON data.
-        json_data = {
-            "USER_ID": [
-                {
-                    "task": task["title"],
-                    "completed": task["completed"],
-                    "username": task["username"]
-                }
-                for task in todo_list_items
-            ]
-        }
+    # Get employee TODO list
+    response = requests.get(f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos')
+    todos = response.json()
+
+    # Calculate progress
+    total_tasks = len(todos)
+    done_tasks = len([todo for todo in todos if todo['completed']])
+
+    # Print progress report
+    print(f'Employee {employee_name} is done with tasks({done_tasks}/{total_tasks}):')
+    for todo in todos:
+        if todo['completed']:
+            print(f'\t{todo["title"]}')
+
+    # Export data to JSON file
+    data = {str(employee_id): []}
+    for todo in todos:
+        data[str(employee_id)].append({
+            'task': todo['title'],
+            'completed': todo['completed'],
+            'username': employee_name
+        })
+
+    with open(f'{employee_id}.json', 'w') as jsonfile:
+        json.dump(data, jsonfile)
