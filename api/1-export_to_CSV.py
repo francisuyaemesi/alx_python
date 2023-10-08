@@ -1,41 +1,53 @@
-"""fetching employee,TODO lists and counting completed tasks
+#!/usr/bin/python3
 """
-
+    Python script that exports data in the CSV format
+"""
 import csv
+import json
 import requests
-import sys
-
-def get_employee_todo_list_progress(employee_id):
-    # Get employee details
-    response = requests.get(f'https://jsonplaceholder.typicode.com/users/{employee_id}')
-    employee_name = response.json()['name']
-
-    # Get employee TODO list
-    response = requests.get(f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos')
-    todos = response.json()
-
-    # Calculate progress
-    total_tasks = len(todos)
-    done_tasks = len([todo for todo in todos if todo['completed']])
-
-    # Print progress report
-    print(f'Employee {employee_name} is done with tasks({done_tasks}/{total_tasks}):')
-    for todo in todos:
-        if todo['completed']:
-            print(f'\t{todo["title"]}')
-
-    # Export data to CSV file
-    with open(f'{employee_id}.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE'])
-        for todo in todos:
-            writer.writerow([employee_id, employee_name, todo['completed'], todo['title']])
-
-if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} EMPLOYEE_ID")
-        sys.exit(1)
+from sys import argv
 
 
-    employee_id = sys.argv[1]
-    get_employee_todo_list_progress(employee_id)
+if __name__ == "__main__":
+    """
+        Request user info by employee ID
+    """
+    request_employee = requests.get(
+        'https://jsonplaceholder.typicode.com/users/{}'.format(argv[1]))
+    """
+        Convert json to dictionary
+    """
+    user = json.loads(request_employee.text)
+    """
+        Extract username
+    """
+    username = user.get("username")
+
+    """
+        Request user's TODO list
+    """
+    request_todos = requests.get(
+        'https://jsonplaceholder.typicode.com/todos?userId={}'.format(argv[1]))
+    """
+        Dictionary to store task status(completed) in boolean format
+    """
+    tasks = {}
+    """
+        Convert json to list of dictionaries
+    """
+    user_todos = json.loads(request_todos.text)
+    """
+        Loop through dictionary & get completed tasks
+    """
+    for dictionary in user_todos:
+        tasks.update({dictionary.get("title"): dictionary.get("completed")})
+
+    """
+        Export to CSV
+    """
+    with open('{}.csv'.format(argv[1]), mode='w', newline='') as file:
+        file_editor = csv.writer(file, delimiter=',', quoting=csv.QUOTE_ALL)
+        for k, v in tasks.items():
+            file_editor.writerow([argv[1], username, v, k])
+
+    print('Data exported to {}.csv'.format(argv[1]))
