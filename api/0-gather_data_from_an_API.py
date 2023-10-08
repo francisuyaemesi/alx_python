@@ -1,36 +1,27 @@
 import requests
 import sys
 
+def get_employee_todo_progress(employee_id):
+    url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    response = requests.get(url)
+    employee = response.json()
 
+    url = f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos"
+    response = requests.get(url)
+    todos = response.json()
 
-def  get_data(id):
-    user_data_url = f'https://jsonplaceholder.typicode.com/users/{id}'
-    user_todos_url = f'https://jsonplaceholder.typicode.com/users/{id}/todos'
-    output = 0
+    total_tasks = len(todos)
+    done_tasks = sum(1 for todo in todos if todo['completed'])
 
-    # Fetch  data
-    user_data = requests.get(user_data_url)
-    user_todo = requests.get(user_todos_url)
+    print(f"Employee {employee['name']} is done with tasks({done_tasks}/{total_tasks}):")
+    for todo in todos:
+        if todo['completed']:
+            print(f"\t {todo['title']}")
 
-    # Parse data
-    json_output = user_data.json()
-    emp_name = json_output["name"]
-    json_user_todo = user_todo.json()
-    total_tasks = len(json_user_todo)
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} EMPLOYEE_ID")
+        sys.exit(1)
 
-    # Display the titles of completed tasks
-    m = []
-    for task in user_todo.json():
-        if task["completed"]:
-            output += 1
-            m.append(task["title"])
-
-
-    print(f'Employee {emp_name} is done with tasks ({output}/{total_tasks}):')
-    for task_title in m:
-        print(f'\t{task_title}')
-
-
-if __name__ =='__main__':
-    id = sys.argv[1]
-    get_data(id)
+    employee_id = sys.argv[1]
+    get_employee_todo_progress(employee_id)
